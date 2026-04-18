@@ -1,0 +1,75 @@
+# -----------------------------
+# Global / repo-wide
+# -----------------------------
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*.tmp
+*.temp
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# IDE / editor
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# -----------------------------
+# Frontend (Vite/React)
+# -----------------------------
+node_modules/
+
+# Build output
+dist/
+dist-ssr/
+coverage/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Local overrides
+*.local
+
+# -----------------------------
+# Backend (Python/FastAPI)
+# -----------------------------
+# Virtual environments
+venv/
+.venv/
+env/
+
+# Python cache / artifacts
+__pycache__/
+*.py[cod]
+*.pyd
+*.pyo
+*.egg-info/
+*.pyc
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Uploaded/generated files
+backend/uploads/*
+!backend/uploads/.gitkeep
+
+# Local database and runtime files
+*.sqlite3
+*.db
+
+tts-outputs/
+uploads/
