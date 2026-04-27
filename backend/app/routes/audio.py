@@ -8,6 +8,7 @@ AUDIO_DIR = "tts-outputs"
 @router.get("/audio/{filename}")
 def get_audio(filename: str):
     file_path = os.path.join(AUDIO_DIR, filename)
+    print(f"Received request for audio file: {filename} | resolved path: {file_path}")
 
     if not os.path.exists(file_path):
         return {"error": "file not found"}
