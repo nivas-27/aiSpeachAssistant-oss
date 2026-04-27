@@ -1,6 +1,7 @@
 const BACKEND_ENDPOINTS = {
     TRANSCRIBE : '/transcribe',
-    AUDIO : '/audio'
+    AUDIO : '/audio',
+    SESSION : '/session'
 }
 
 export { BACKEND_ENDPOINTS }

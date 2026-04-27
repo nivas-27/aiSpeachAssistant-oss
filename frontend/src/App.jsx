@@ -5,7 +5,6 @@ function App() {
   return (
     <>
       <div className="App">
-        <h1>Audio Transcription App</h1>
         <Recorder />
       </div>
     </>
