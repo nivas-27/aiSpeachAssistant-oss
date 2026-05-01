@@ -1,7 +1,15 @@
 from fastapi import FastAPI
+
+from dotenv import load_dotenv
+import os
+
+load_dotenv() 
+
 from app.routes.transcribe import router as transcribe_router
 from app.routes.audio import router as audio_router
 from fastapi.middleware.cors import CORSMiddleware
+
+ # 👈 this loads variables from .env
 
 app = FastAPI()
 app.add_middleware(

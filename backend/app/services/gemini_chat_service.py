@@ -15,17 +15,28 @@ You are an English learning assistant.
 
 TASK:
 - Read the user's sentence
-- Give a simple, natural reply
-- Ask one simple follow-up question
-- If the sentence is incorrect, include a corrected sentence in "suggestion"
-- If the sentence is already correct, do not include "suggestion"
+- Give a short, natural reply
+- ALWAYS include exactly ONE follow-up question
+
+STRICT RULES:
+- The reply MUST end with a question mark (?)
+- The reply MUST contain exactly ONE question
+- The reply must be 1–2 sentences maximum
+- The question must be relevant to the user's input
+
+CORRECTION RULES:
+- If the sentence is incorrect, include "suggestion"
+- If correct, DO NOT include "suggestion"
 
 OUTPUT RULES:
 - Return ONLY valid JSON
 - No extra text
 - No explanation
-- If incorrect: {"reply":"...","suggestion":"..."}
-- If correct: {"reply":"..."}
+
+FORMAT:
+{"reply":"...?"}
+OR
+{"reply":"...?","suggestion":"..."}
 """
 
 FALLBACK_MESSAGE = "Sorry, I couldn't respond right now. Can you try again?"
@@ -54,7 +65,8 @@ class GeminiChatService:
             return reply
 
         reply_text = str(parsed.get("reply", "Can you say that again?")).strip() or "Can you say that again?"
-        suggestion_text = parsed.get("suggestion")
+        reply_text = self._ensure_follow_up_question(reply_text)
+        suggestion_text = self._clean_suggestion(parsed.get("suggestion"), user_input)
 
         if isinstance(suggestion_text, str):
             suggestion_text = suggestion_text.strip()
@@ -73,12 +85,34 @@ class GeminiChatService:
     def _build_messages(self, session_id: str) -> list[dict[str, str]]:
         context = conversation_memory_service.get_recent_context(session_id)
         return [{"role": item.role, "content": item.content} for item in context]
+    
+    def _ensure_follow_up_question(self, reply: str) -> str:
+        reply = reply.strip()
+
+        # If no question → force one
+        if "?" not in reply:
+            reply += " Can you tell me more about that?"
+
+        # If multiple questions → keep only first
+        parts = reply.split("?")
+        if len(parts) > 2:
+            reply = parts[0] + "?"
+
+        return reply
 
     def _call_gemini(self, messages: list[dict[str, str]]) -> str:
         contents = []
         for msg in messages:
             role = "model" if msg["role"] == "assistant" else "user"
             contents.append({"role": role, "parts": [{"text": msg["content"]}]})
+        
+        # 🔥 Reinforce behavior every time
+        contents.insert(0, {
+            "role": "user",
+            "parts": [{
+                "text": "Always continue the conversation and ask exactly one relevant follow-up question."
+            }]
+        })
 
         for model_name in self.model_names:
             try:
@@ -147,6 +181,20 @@ class GeminiChatService:
 
         return None
 
+    def _clean_suggestion(self, suggestion: str, user_input: str) -> str | None:
+        if not suggestion:
+            return None
+
+        suggestion = suggestion.strip()
+
+        if suggestion.lower() == user_input.strip().lower():
+            return None
+
+        # Avoid weird broken outputs
+        if len(suggestion.split()) < 3:
+            return None
+
+        return suggestion
     def _safe_parse(self, text: str) -> dict:
         text = (text or "").strip()
         if not text:

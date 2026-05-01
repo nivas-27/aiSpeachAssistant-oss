@@ -1,6 +1,6 @@
 from fastapi import APIRouter, UploadFile, File, Form
 from app.models.transcribe_models import ErrorResponse, TranscribeResponse, SessionResponse
-from app.services.whisper_service import transcribe_audio
+from app.services.whisper_openAi_service import transcribe_audio
 from app.services.gemini_chat_service import chat_with_gemini
 from app.services.edge_tts_service import generate_audio_edge
 from app.utils.file_utils import save_upload_file
