@@ -2,8 +2,8 @@ from fastapi import APIRouter, UploadFile, File, Form
 from app.models.transcribe_models import ErrorResponse, TranscribeResponse, SessionResponse
 from app.services.whisper_openAi_service import transcribe_audio
 from app.services.gemini_chat_service import chat_with_gemini
-from app.services.edge_tts_service import generate_audio_edge
 from app.utils.file_utils import save_upload_file
+from app.services.openAi_TTS_service import generate_audio_openai
 from app.services.conversation_memory_service import conversation_memory_service
 from datetime import datetime
 import time
@@ -55,8 +55,8 @@ async def transcribe(
     print(f"[{datetime.now().isoformat()}] tts input | reply_type={type(reply_text).__name__} | reply_preview={str(reply_text)[:80]}")
 
     step_start = time.perf_counter()
-    audio_file_path = await generate_audio_edge(reply_text)
-    print(f"[{datetime.now().isoformat()}] edge tts done | audio_file={audio_file_path} | took_ms={(time.perf_counter() - step_start) * 1000:.2f}")
+    audio_file_path = await generate_audio_openai(reply_text)
+    print(f"[{datetime.now().isoformat()}] openai tts done | audio_file={audio_file_path} | took_ms={(time.perf_counter() - step_start) * 1000:.2f}")
 
     print(f"[{datetime.now().isoformat()}] /transcribe finished | total_ms={(time.perf_counter() - request_start) * 1000:.2f}")
     return TranscribeResponse(
