@@ -57,7 +57,7 @@
 
 .recorder-shell {
   position: relative;
-  height: 95vh;
+  height: 94vh;
   width: calc(100% - 48px);
   background-color: var(--surface);
   color: var(--on-surface);
@@ -66,7 +66,7 @@
   display: flex;
   justify-content: center;
   align-items: stretch;
-  padding: 24px;
+  padding: 1.5rem;
 }
 
 .material-symbols-outlined {
@@ -116,8 +116,11 @@
 
 .chat-viewport {
   flex: 1;
-  overflow-y: auto;
   overflow-x: hidden;
+  display: flex;
+  flex-direction: column-reverse;
+  overflow-y: auto;
+  max-height: 90vh;
 }
 
 .message-stack {
@@ -214,6 +217,7 @@
   flex-direction: column;
   align-items: center;
   gap: 24px;
+  margin-bottom: 3rem;
 }
 
 .visualizer {
@@ -221,7 +225,7 @@
   display: flex;
   align-items: flex-end;
   gap: 4px;
-  opacity: 0.3;
+  opacity: 0.15;
 }
 
 .viz-bar {
@@ -229,6 +233,15 @@
   background: var(--primary);
   border-radius: 999px;
   transform-origin: bottom;
+  animation-play-state: paused !important;
+}
+
+.visualizer.is-active {
+  opacity: 0.3;
+}
+
+.visualizer.is-active .viz-bar {
+  animation-play-state: running !important;
 }
 
 .bar-1 {
@@ -353,6 +366,44 @@
   text-transform: uppercase;
   letter-spacing: 0.2em;
   color: rgba(255, 255, 255, 0.22);
+}
+
+.loading-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.35);
+  z-index: 5;
+}
+
+.loading-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 22px;
+  border-radius: 16px;
+  background: var(--surface-container);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: 0 18px 40px -24px rgba(0, 0, 0, 0.85);
+}
+
+.loading-spinner {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-top-color: var(--primary);
+  animation: spin 0.9s linear infinite;
+}
+
+.loading-text {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.7);
 }
 
 .meta-group {
@@ -481,6 +532,12 @@
   100% {
     transform: scale(1.08);
     opacity: 0;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
   }
 }
 

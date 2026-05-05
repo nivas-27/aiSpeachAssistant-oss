@@ -9,10 +9,13 @@ function AudioRecorder() {
   const [recording, setRecording] = useState(false);
   const [messages, setMessages] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [totalSeconds, setTotalSeconds] = useState(0);
+  const [currentSeconds, setCurrentSeconds] = useState(0);
   const mediaRecorderRef = useRef(null);
   const audioChunksRef = useRef([]);
   const audioRef = useRef(null);
   const chatScrollRef = useRef(null);
+  const timerRef = useRef(null);
 
   const fetchSessionId = async () => {
     const cached = localStorage.getItem(SESSION_ID_KEY);
@@ -46,6 +49,29 @@ function AudioRecorder() {
       console.error("Error creating session:", error);
     });
   }, []);
+
+  useEffect(() => {
+    if (!recording) {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
+      return;
+    }
+
+    setCurrentSeconds(0);
+    timerRef.current = setInterval(() => {
+      setTotalSeconds((prev) => prev + 1);
+      setCurrentSeconds((prev) => prev + 1);
+    }, 1000);
+
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
+    };
+  }, [recording]);
 
   const startRecording = async () => {
     try {
@@ -87,6 +113,12 @@ function AudioRecorder() {
     }
 
     return audioPath.split(/[/\\]/).pop() || "";
+  };
+
+  const formatDuration = (total) => {
+    const minutes = Math.floor(total / 60);
+    const seconds = total % 60;
+    return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
   };
 
   const sendAudio = async (blob) => {
@@ -158,13 +190,18 @@ function AudioRecorder() {
   };
 
   const statusLabel = isLoading ? "Processing" : recording ? "Recording" : "Ready";
-  const sessionTime = new Date().toLocaleTimeString([], {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+  const sessionTime = formatDuration(recording ? currentSeconds : totalSeconds);
 
   return (
     <div className="recorder-shell">
+      {isLoading ? (
+        <div className="loading-overlay" role="status" aria-live="polite">
+          <div className="loading-card">
+            <span className="loading-spinner" aria-hidden="true" />
+            <span className="loading-text">Processing...</span>
+          </div>
+        </div>
+      ) : null}
       <main className="recorder-main">
         <div className="chat-viewport hide-scrollbar" ref={chatScrollRef}>
           <div className="message-stack">
@@ -209,7 +246,7 @@ function AudioRecorder() {
         </div>
 
         <div className="record-dock">
-          <div className="visualizer" aria-hidden="true">
+          <div className={`visualizer ${recording ? "is-active" : ""}`} aria-hidden="true">
             <span className="viz-bar bar-1" />
             <span className="viz-bar bar-2" />
             <span className="viz-bar bar-3" />
@@ -220,10 +257,6 @@ function AudioRecorder() {
           </div>
 
           <div className="dock-controls">
-            <button type="button" className="icon-button" disabled={isLoading} aria-label="History">
-              <span className="material-symbols-outlined">history</span>
-            </button>
-
             <button
               type="button"
               className={`record-button ${recording ? "is-recording" : ""}`}
@@ -235,14 +268,14 @@ function AudioRecorder() {
               <span className="record-label">{recording ? "Recording" : "Start Session"}</span>
             </button>
 
-            <button type="button" className="icon-button" disabled={isLoading} aria-label="Settings">
+            {/* <button type="button" className="icon-button" disabled={isLoading} aria-label="Settings">
               <span className="material-symbols-outlined">settings</span>
-            </button>
+            </button> */}
           </div>
 
           <div className="dock-meta">
             <div className="meta-group">
-              <span>Session</span>
+              <span>{recording ? "Recording" : "Session"}</span>
               <span className="meta-value">{sessionTime}</span>
             </div>
             <div className="meta-group">
