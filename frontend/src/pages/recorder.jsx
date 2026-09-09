@@ -1,12 +1,8 @@
 import React from "react";
-import AudioRecorder from "../components/audioRecorder";
+import MeetingRoom from "../components/MeetingRoom";
 
 const Recorder = () => {
-  return (
-    <div>
-        <AudioRecorder />
-    </div>
-    );
+  return <MeetingRoom />;
 };
 
 export default Recorder;

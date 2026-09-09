@@ -1,0 +1,265 @@
+.shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+}
+
+/* ─── Top navigation ─────────────────────────────────────────────────────── */
+
+.shell-nav {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 0 26px;
+  height: 62px;
+  background: color-mix(in srgb, var(--surface) 82%, transparent);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.shell-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.shell-brand-dot {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: var(--primary);
+  box-shadow: 0 0 14px var(--primary-glow);
+}
+
+.shell-brand-name {
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.shell-links {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.shell-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 15px;
+  border-radius: 999px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--on-surface-muted);
+  transition: color 160ms ease, background 160ms ease;
+}
+
+.shell-link .material-symbols-outlined {
+  font-size: 19px;
+}
+
+.shell-link:hover {
+  color: var(--on-surface);
+  background: var(--surface-container);
+}
+
+.shell-link.is-active {
+  color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 11%, transparent);
+}
+
+/* ─── Account menu ───────────────────────────────────────────────────────── */
+
+.shell-account {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.shell-avatar-btn {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 5px 11px 5px 5px;
+  border-radius: 999px;
+  border: 1px solid var(--border-subtle);
+  background: var(--surface-container);
+  transition: border-color 160ms ease, background 160ms ease;
+}
+
+.shell-avatar-btn:hover {
+  border-color: var(--border-medium);
+  background: var(--surface-container-high);
+}
+
+.shell-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 11.5px;
+  font-weight: 800;
+  color: #fff;
+  background: linear-gradient(140deg, #6d55e8, var(--ai-color));
+  flex-shrink: 0;
+}
+
+.shell-account-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--on-surface-variant);
+  max-width: 110px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.shell-caret {
+  font-size: 17px;
+  color: var(--on-surface-muted);
+}
+
+.shell-menu {
+  position: absolute;
+  top: calc(100% + 9px);
+  right: 0;
+  min-width: 220px;
+  background: var(--surface-container-high);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-md);
+  padding: 6px;
+  box-shadow: 0 24px 54px -20px rgba(0, 0, 0, 0.9);
+  animation: menu-in 150ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}
+
+.shell-menu-head {
+  padding: 11px 13px;
+  border-bottom: 1px solid var(--border-subtle);
+  margin-bottom: 5px;
+}
+
+.shell-menu-name {
+  font-size: 13.5px;
+  font-weight: 700;
+}
+
+.shell-menu-email {
+  font-size: 12px;
+  color: var(--on-surface-muted);
+  margin-top: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.shell-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 13px;
+  border-radius: var(--radius-sm);
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--on-surface-variant);
+  transition: background 140ms ease, color 140ms ease;
+}
+
+.shell-menu-item .material-symbols-outlined {
+  font-size: 18px;
+}
+
+.shell-menu-item:hover {
+  background: var(--surface-container-highest);
+  color: var(--on-surface);
+}
+
+/* ─── Body ───────────────────────────────────────────────────────────────── */
+
+.shell-body {
+  flex: 1;
+  width: 100%;
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 34px 26px 60px;
+}
+
+/* ─── Mobile tab bar ─────────────────────────────────────────────────────── */
+
+.shell-tabbar {
+  display: none;
+}
+
+@media (max-width: 720px) {
+  .shell-nav {
+    padding: 0 16px;
+  }
+
+  .shell-links {
+    display: none;
+  }
+
+  .shell-account-name {
+    display: none;
+  }
+
+  .shell-body {
+    padding: 22px 16px 92px;
+  }
+
+  .shell-tabbar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 40;
+    display: flex;
+    justify-content: space-around;
+    padding: 8px 8px calc(8px + env(safe-area-inset-bottom));
+    background: color-mix(in srgb, var(--surface) 92%, transparent);
+    backdrop-filter: blur(16px);
+    border-top: 1px solid var(--border-subtle);
+  }
+
+  .shell-tab {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    padding: 7px 18px;
+    border-radius: var(--radius-sm);
+    font-size: 10.5px;
+    font-weight: 700;
+    color: var(--on-surface-muted);
+  }
+
+  .shell-tab .material-symbols-outlined {
+    font-size: 21px;
+  }
+
+  .shell-tab.is-active {
+    color: var(--primary);
+  }
+}
+
+/* Full-bleed mode: the live meeting owns the whole viewport. The <main> stays
+   in the tree (so children never remount) but drops all its framing. */
+.shell-body-bare {
+  max-width: none;
+  margin: 0;
+  padding: 0;
+}

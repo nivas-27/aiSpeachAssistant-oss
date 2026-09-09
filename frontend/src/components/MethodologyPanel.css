@@ -1,0 +1,153 @@
+.methodology {
+  background: var(--surface-container);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  transition: border-color 180ms ease;
+}
+
+.methodology.is-open {
+  border-color: var(--border-medium);
+}
+
+.methodology-toggle {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: 18px 22px;
+  text-align: left;
+  transition: background 160ms ease;
+}
+
+.methodology-toggle:hover {
+  background: var(--surface-container-high);
+}
+
+.methodology-icon {
+  font-size: 22px;
+  color: var(--primary);
+  flex-shrink: 0;
+}
+
+.methodology-heading {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.methodology-title {
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--on-surface);
+}
+
+.methodology-sub {
+  font-size: 12.5px;
+  color: var(--on-surface-muted);
+  font-weight: 600;
+}
+
+.methodology-caret {
+  font-size: 22px;
+  color: var(--on-surface-muted);
+  flex-shrink: 0;
+  transition: transform 220ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.methodology.is-open .methodology-caret {
+  transform: rotate(180deg);
+}
+
+.methodology-body {
+  padding: 4px 22px 22px;
+  border-top: 1px solid var(--border-subtle);
+  margin-top: -1px;
+  animation: methodology-in 220ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes methodology-in {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+}
+
+.methodology-principle {
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--on-surface-variant);
+  padding: 16px 0 4px;
+  max-width: 720px;
+}
+
+.methodology-loading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 22px 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--on-surface-muted);
+}
+
+.methodology-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.methodology-item {
+  background: var(--surface-container-high);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 15px 16px;
+}
+
+.methodology-item dt {
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--on-surface);
+}
+
+.methodology-item dd {
+  margin-top: 9px;
+}
+
+.methodology-formula {
+  display: block;
+  font-family: "Space Grotesk", ui-monospace, monospace;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--primary) 18%, transparent);
+  border-radius: 8px;
+  padding: 8px 11px;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.methodology-item dd p {
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--on-surface-muted);
+  margin-top: 9px;
+}
+
+@media (max-width: 720px) {
+  .methodology-toggle {
+    padding: 15px 16px;
+  }
+
+  .methodology-body {
+    padding: 4px 16px 16px;
+  }
+}

@@ -1,0 +1,45 @@
+/* The lobby and the end-of-session card were written to own the whole
+   viewport. Inside the app shell they sit under the 62px nav bar, so they get
+   the remaining height instead of a second full screen - which is what pushed
+   the card off-centre and left a dead scroll region below it. */
+
+:root {
+  /* nav height + the shell body's top and bottom padding */
+  --practice-chrome: 156px;
+}
+
+.practice-frame {
+  display: flex;
+  flex-direction: column;
+}
+
+.practice-frame .lobby-shell,
+.practice-frame .meeting-ended-shell {
+  min-height: calc(100vh - var(--practice-chrome));
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  background: transparent;
+}
+
+.practice-frame .lobby-card,
+.practice-frame .ended-card {
+  margin-inline: auto;
+}
+
+/* The shell already lays down ambient glows; a second pair muddies them. */
+.practice-frame .lobby-glow {
+  opacity: 0.5;
+}
+
+@media (max-width: 720px) {
+  :root {
+    /* mobile nav + smaller top padding + room for the bottom tab bar */
+    --practice-chrome: 176px;
+  }
+}
+
+/* Live meeting: pure passthrough, no framing of any kind. */
+.practice-live {
+  display: contents;
+}

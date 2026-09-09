@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import "./audioRecorder.css";
-import { getSession, getTranscribe } from "../apiCalls/transcribe";
+import { getSession, streamTranscribe } from "../apiCalls/transcribe";
 import { BACKEND_ENDPOINTS } from "../apiCalls/backendEndpoints";
 
 const SESSION_ID_KEY = "aiSpeechAssistant_session_id";
@@ -9,11 +9,15 @@ function AudioRecorder() {
   const [recording, setRecording] = useState(false);
   const [messages, setMessages] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isBusy, setIsBusy] = useState(false);
+  const [isAiSpeaking, setIsAiSpeaking] = useState(false);
   const [totalSeconds, setTotalSeconds] = useState(0);
   const [currentSeconds, setCurrentSeconds] = useState(0);
   const mediaRecorderRef = useRef(null);
   const audioChunksRef = useRef([]);
   const audioRef = useRef(null);
+  const audioQueueRef = useRef([]);
+  const audioPlayingRef = useRef(false);
   const chatScrollRef = useRef(null);
   const timerRef = useRef(null);
 
@@ -73,8 +77,57 @@ function AudioRecorder() {
     };
   }, [recording]);
 
+  const playNextQueuedAudio = async () => {
+    if (audioPlayingRef.current || !audioRef.current) {
+      return;
+    }
+
+    const nextAudioUrl = audioQueueRef.current.shift();
+    if (!nextAudioUrl) {
+      setIsAiSpeaking(false);
+      return;
+    }
+
+    audioPlayingRef.current = true;
+    setIsAiSpeaking(true);
+    audioRef.current.src = nextAudioUrl;
+    audioRef.current.onended = () => {
+      audioPlayingRef.current = false;
+      playNextQueuedAudio().catch((error) => {
+        console.error("Error continuing queued audio playback:", error);
+        setIsAiSpeaking(false);
+      });
+    };
+
+    try {
+      await audioRef.current.play();
+    } catch (playError) {
+      audioPlayingRef.current = false;
+      setIsAiSpeaking(false);
+      console.error("Audio autoplay blocked:", playError);
+    }
+  };
+
+  const enqueueAudioSegment = async (audioUrl) => {
+    if (!audioUrl) {
+      return;
+    }
+
+    audioQueueRef.current.push(audioUrl);
+    if (!audioPlayingRef.current) {
+      await playNextQueuedAudio();
+    }
+  };
+
   const startRecording = async () => {
     try {
+      // Check if navigator.mediaDevices is available
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        throw new Error(
+          "Your browser does not support audio recording. Please use a modern browser (Chrome, Firefox, Safari, Edge)."
+        );
+      }
+
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       const mediaRecorder = new MediaRecorder(stream);
 
@@ -95,6 +148,7 @@ function AudioRecorder() {
       setRecording(true);
     } catch (error) {
       console.error("Unable to access microphone:", error);
+      alert(`Microphone Error: ${error.message || error}`);
     }
   };
 
@@ -123,6 +177,15 @@ function AudioRecorder() {
 
   const sendAudio = async (blob) => {
     setIsLoading(true);
+    setIsBusy(true);
+    audioQueueRef.current = [];
+    audioPlayingRef.current = false;
+    setIsAiSpeaking(false);
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.removeAttribute("src");
+      audioRef.current.load();
+    }
     const formData = new FormData();
     let sessionId = localStorage.getItem(SESSION_ID_KEY);
     if (!sessionId) {
@@ -131,6 +194,7 @@ function AudioRecorder() {
       } catch (error) {
         console.error("Error creating session:", error);
         setIsLoading(false);
+        setIsBusy(false);
         return;
       }
     }
@@ -139,57 +203,97 @@ function AudioRecorder() {
     formData.append("session_id", sessionId);
 
     try {
-      const response = await getTranscribe(formData);
-
-      if (!response.ok) {
-        throw new Error(`Transcribe request failed: ${response.status}`);
-      }
-
-      const data = await response.json();
-      const audioFilename = getAudioFilename(data.audio_file);
-      const audioUrl = audioFilename
-        ? `${import.meta.env.VITE_BACKEND_URL}${BACKEND_ENDPOINTS.AUDIO}/${encodeURIComponent(audioFilename)}`
-        : "";
-
-      const userText = data.transcription || "";
-      const botReply = data.chat_response?.reply || "";
-      const suggestion = data.chat_response?.suggestion || "";
-
       const timestamp = Date.now();
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: `${timestamp}-user`,
-          side: "right",
-          role: "Me",
-          text: userText,
-        },
-        {
-          id: `${timestamp}-bot`,
-          side: "left",
-          role: "Assistant",
-          text: botReply,
-          suggestion,
-          audioUrl,
-        },
-      ]);
+      const userMessageId = `${timestamp}-user`;
+      const botMessageId = `${timestamp}-bot`;
+      let insertedMessages = false;
 
-      if (audioUrl && audioRef.current) {
-        audioRef.current.src = audioUrl;
-        try {
-          await audioRef.current.play();
-        } catch (playError) {
-          console.error("Audio autoplay blocked:", playError);
+      await streamTranscribe(formData, async (event) => {
+        if (event.type === "transcription") {
+          setIsLoading(false);
+          if (!insertedMessages) {
+            insertedMessages = true;
+            setMessages((prev) => [
+              ...prev,
+              {
+                id: userMessageId,
+                side: "right",
+                role: "Me",
+                text: event.transcription || "",
+              },
+              {
+                id: botMessageId,
+                side: "left",
+                role: "Assistant",
+                text: "",
+                audioSegments: [],
+              },
+            ]);
+          }
+          return;
         }
-      }
+
+        if (event.type === "reply_chunk") {
+          setIsLoading(false);
+          setMessages((prev) =>
+            prev.map((message) =>
+              message.id === botMessageId
+                ? { ...message, text: event.reply || `${message.text || ""}${event.delta || ""}` }
+                : message
+            )
+          );
+          return;
+        }
+
+        if (event.type === "reply_done") {
+          setMessages((prev) =>
+            prev.map((message) =>
+              message.id === botMessageId
+                ? { ...message, text: event.reply || message.text }
+                : message
+            )
+          );
+          return;
+        }
+
+        if (event.type === "audio_segment") {
+          const audioFilename = getAudioFilename(event.audio_file);
+          const audioUrl = audioFilename
+            ? `${import.meta.env.VITE_BACKEND_URL}${BACKEND_ENDPOINTS.AUDIO}/${encodeURIComponent(audioFilename)}`
+            : "";
+
+          setMessages((prev) =>
+            prev.map((message) =>
+              message.id === botMessageId
+                ? {
+                    ...message,
+                    audioSegments: [...(message.audioSegments || []), { url: audioUrl, text: event.segment_text || "" }],
+                  }
+                : message
+            )
+          );
+          await enqueueAudioSegment(audioUrl);
+          return;
+        }
+
+        if (event.type === "error") {
+          throw new Error(event.message || "Streaming failed.");
+        }
+
+        if (event.type === "done") {
+          setIsBusy(false);
+        }
+      });
     } catch (error) {
       console.error("Error sending audio:", error);
+      setIsBusy(false);
     } finally {
       setIsLoading(false);
+      setIsBusy(false);
     }
   };
 
-  const statusLabel = isLoading ? "Processing" : recording ? "Recording" : "Ready";
+  const statusLabel = isLoading ? "Processing" : isBusy ? "Responding" : isAiSpeaking ? "AI Speaking" : recording ? "Recording" : "Ready";
   const sessionTime = formatDuration(recording ? currentSeconds : totalSeconds);
 
   return (
@@ -226,16 +330,11 @@ function AudioRecorder() {
                   <div className="assistant-card">
                     {message.text ? <p className="message-text">{message.text}</p> : null}
 
-                    {message.suggestion ? (
-                      <div className="split-block split-border">
-                        <span className="meta-label">Suggestion</span>
-                        <p className="message-subtext">{message.suggestion}</p>
-                      </div>
-                    ) : null}
-
-                    {message.audioUrl ? (
+                    {message.audioSegments?.length ? (
                       <div className="audio-block">
-                        <audio controls src={message.audioUrl} className="chat-audio" />
+                        {message.audioSegments.map((segment, index) => (
+                          <audio key={`${message.id}-segment-${index}`} controls src={segment.url} className="chat-audio" />
+                        ))}
                       </div>
                     ) : null}
                   </div>
@@ -261,7 +360,7 @@ function AudioRecorder() {
               type="button"
               className={`record-button ${recording ? "is-recording" : ""}`}
               onClick={recording ? stopRecording : startRecording}
-              disabled={isLoading}
+              disabled={isBusy || isAiSpeaking}
             >
               <span className="record-ping" aria-hidden="true" />
               <span className="material-symbols-outlined record-icon">mic</span>
