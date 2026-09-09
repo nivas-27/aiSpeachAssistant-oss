@@ -33,14 +33,13 @@ STRICT OUTPUT RULES:
 - Output must start with { and end with }
 
 Format:
-{"corrected":"...","suggestion":"...","reply":"..."}
+{"corrected":"...","reply":"..."}
 """
 
 
 def _fallback_response(user_input: str):
     return {
         "corrected": user_input,
-        "suggestion": user_input,
         "reply": "I could not generate a response right now. Can you try again?"
     }
 
@@ -99,6 +98,5 @@ def chat_with_gpt(user_input: str):
 
     return {
         "corrected": str(parsed.get("corrected", user_input)),
-        "suggestion": str(parsed.get("suggestion", user_input)),
         "reply": str(parsed.get("reply", "Can you say that again?"))
     }
