@@ -7,7 +7,6 @@ import os
 load_dotenv()
 
 print("Initializing OpenAI client with base_url:", "https://api.openadapter.in/v1")
-print(os.getenv("OPENADAPTER_OPENAI_API_KEY"))
 
 client = OpenAI(
     api_key=os.getenv("OPENADAPTER_OPENAI_API_KEY"),
