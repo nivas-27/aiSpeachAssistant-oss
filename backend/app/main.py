@@ -1,3 +1,4 @@
+import os
 from contextlib import asynccontextmanager
 
 from dotenv import load_dotenv
@@ -19,7 +20,7 @@ from app.routes.transcribe import router as transcribe_router
 async def lifespan(app: FastAPI):
     ok, message = init_db()
     if ok:
-        print(f"[startup] MongoDB {message} -> {settings.MONGODB_URI}/{settings.MONGODB_DB}")
+        print(f"[startup] MongoDB {message} -> database '{settings.MONGODB_DB}'")
     else:
         # Do not crash: the API should still boot so the failure is visible in
         # the response instead of an unexplained refused connection.
@@ -41,11 +42,15 @@ async def lifespan(app: FastAPI):
     close_client()
 
 
+_cors_origins = [
+    o.strip() for o in os.getenv("CORS_ORIGINS", "*").split(",") if o.strip()
+]
+
 app = FastAPI(title=settings.APP_NAME, version="1.1.0", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # later restrict this
+    allow_origins=_cors_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

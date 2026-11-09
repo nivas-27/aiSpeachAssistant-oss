@@ -1,0 +1,12 @@
+# Production run: FastAPI on 127.0.0.1:8130 (host network, so it reaches the
+# MongoDB container published on 127.0.0.1:27017). Nginx + cloudflared sit in front.
+services:
+  backend:
+    build: ./backend
+    container_name: fluently-api
+    network_mode: host
+    env_file: ./backend/.env
+    environment:
+      HOST: 127.0.0.1
+      PORT: "8130"
+    restart: unless-stopped
