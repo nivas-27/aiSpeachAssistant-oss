@@ -1,0 +1,337 @@
+.chart-card {
+  background: var(--surface-container);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 20px 22px 16px;
+}
+
+.chart-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+
+.chart-title {
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.chart-subtitle {
+  font-size: 12.5px;
+  color: var(--on-surface-muted);
+  margin-top: 3px;
+  line-height: 1.4;
+}
+
+.chart-meta {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--on-surface-variant);
+  background: var(--surface-container-high);
+  border: 1px solid var(--border-subtle);
+  border-radius: 999px;
+  padding: 5px 11px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* ─── Plot surface ───────────────────────────────────────────────────────── */
+
+.chart-plot {
+  position: relative;
+  width: 100%;
+}
+
+.chart-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+  overflow: visible;
+}
+
+/* Recessive chrome - the data is the loud part. */
+.chart-grid {
+  stroke: var(--grid-line);
+  stroke-width: 1;
+}
+
+.chart-axis-line {
+  stroke: var(--border-medium);
+  stroke-width: 1;
+}
+
+.chart-axis-label {
+  fill: var(--on-surface-muted);
+  font-size: 10.5px;
+  font-family: var(--font-body);
+  font-weight: 600;
+}
+
+.chart-crosshair {
+  stroke: var(--border-strong);
+  stroke-width: 1;
+  stroke-dasharray: 3 3;
+}
+
+.chart-bar {
+  transition: opacity 130ms ease;
+}
+
+/* ─── Tooltip ────────────────────────────────────────────────────────────── */
+
+.chart-tooltip {
+  position: absolute;
+  top: 4px;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 9px 12px;
+  background: var(--surface-container-highest);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 16px 40px -14px rgba(0, 0, 0, 0.9);
+  pointer-events: none;
+  white-space: nowrap;
+  z-index: 5;
+}
+
+.chart-tooltip.start {
+  transform: translateX(-8px);
+}
+
+.chart-tooltip.end {
+  transform: translateX(calc(-100% + 8px));
+}
+
+.tt-date {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--on-surface-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.tt-value {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--on-surface);
+}
+
+.tt-swatch {
+  width: 9px;
+  height: 9px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.tt-sub {
+  font-size: 11.5px;
+  color: var(--on-surface-muted);
+  font-weight: 600;
+}
+
+/* ─── Empty state ────────────────────────────────────────────────────────── */
+
+.chart-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 170px;
+  text-align: center;
+  color: var(--on-surface-muted);
+  padding: 20px;
+}
+
+.chart-empty .material-symbols-outlined {
+  font-size: 30px;
+  opacity: 0.5;
+}
+
+.chart-empty p {
+  font-size: 13px;
+  font-weight: 600;
+  max-width: 260px;
+  line-height: 1.5;
+}
+
+/* ─── Ranked bars ────────────────────────────────────────────────────────── */
+
+.ranked-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.ranked-row {
+  display: grid;
+  grid-template-columns: 96px 1fr 34px;
+  align-items: center;
+  gap: 11px;
+}
+
+.ranked-label {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--on-surface-variant);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ranked-track {
+  height: 8px;
+  border-radius: 999px;
+  background: var(--surface-container-high);
+  overflow: hidden;
+}
+
+.ranked-fill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  transition: width 420ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.ranked-value {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--on-surface);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ─── Stat tiles ─────────────────────────────────────────────────────────── */
+
+.stat-tile {
+  display: flex;
+  align-items: flex-start;
+  gap: 13px;
+  padding: 17px 18px;
+  background: var(--surface-container);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  transition: border-color 180ms ease, transform 180ms ease;
+}
+
+.stat-tile:hover {
+  border-color: var(--border-medium);
+  transform: translateY(-2px);
+}
+
+.stat-icon {
+  font-size: 22px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.stat-body {
+  min-width: 0;
+}
+
+.stat-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--on-surface-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.stat-value {
+  font-family: var(--font-display);
+  font-size: 25px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-top: 5px;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+.stat-unit {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--on-surface-muted);
+  margin-left: 4px;
+}
+
+.stat-hint {
+  font-size: 11.5px;
+  color: var(--on-surface-muted);
+  margin-top: 5px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+/* ─── Gauge ──────────────────────────────────────────────────────────────── */
+
+.gauge {
+  position: relative;
+  width: 140px;
+  height: 140px;
+  flex-shrink: 0;
+}
+
+.gauge-svg {
+  width: 100%;
+  height: 100%;
+}
+
+.gauge-track {
+  fill: none;
+  stroke: var(--surface-container-highest);
+  stroke-width: 11;
+}
+
+.gauge-value {
+  fill: none;
+  stroke: var(--primary);
+  stroke-width: 11;
+  stroke-linecap: round;
+  transition: stroke-dasharray 700ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.gauge-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+}
+
+.gauge-number {
+  font-family: var(--font-display);
+  font-size: 34px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+
+.gauge-caption {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--on-surface-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+@media (max-width: 720px) {
+  .chart-card {
+    padding: 17px 15px 13px;
+  }
+
+  .ranked-row {
+    grid-template-columns: 78px 1fr 30px;
+  }
+}
