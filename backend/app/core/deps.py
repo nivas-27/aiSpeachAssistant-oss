@@ -4,6 +4,7 @@ from app.core.database import users
 from app.core.security import decode_access_token
 from app.core.soft_delete import live
 from app.models.db_models import to_object_id
+from app.services import access_gate
 
 CREDENTIALS_ERROR = HTTPException(
     status_code=status.HTTP_401_UNAUTHORIZED,
@@ -27,5 +28,8 @@ def get_current_user(authorization: str | None = Header(default=None)) -> dict:
     user = users().find_one(live({"_id": user_id}))
     if user is None:
         raise CREDENTIALS_ERROR
+
+    # Also locks out tokens issued before the allowlist existed.
+    access_gate.require_allowed(user["email"], status.HTTP_401_UNAUTHORIZED)
 
     return user

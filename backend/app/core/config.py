@@ -53,6 +53,14 @@ class Settings:
     ALERT_EMAIL_TO: str | None = os.getenv("ALERT_EMAIL_TO") or os.getenv("SMTP_USER") or None
     LLM_ALERT_COOLDOWN_MINUTES: int = int(os.getenv("LLM_ALERT_COOLDOWN_MINUTES", "180"))
 
+    # Optional: when set, only these emails (comma-separated) may log in. Empty = open.
+    ALLOWED_LOGIN_EMAILS_RAW: str = os.getenv("ALLOWED_LOGIN_EMAILS", "")
+    ADMIN_NOTIFY_EMAIL: str | None = os.getenv("ADMIN_NOTIFY_EMAIL") or ALERT_EMAIL_TO
+
+    @property
+    def allowed_login_emails(self) -> set[str]:
+        return {e.strip().lower() for e in self.ALLOWED_LOGIN_EMAILS_RAW.split(",") if e.strip()}
+
     @property
     def smtp_configured(self) -> bool:
         return bool(self.SMTP_HOST)

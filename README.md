@@ -252,6 +252,8 @@ pairs. Every chart also offers a table view or is backed by the session history 
 | `SESSION_DURATION_SECONDS` | Session length cap (default 1200 = 20 min) |
 | `OTP_TTL_MINUTES`, `OTP_RESEND_SECONDS`, `OTP_MAX_ATTEMPTS` | Passcode rules |
 | `SMTP_*` | Email delivery; see above |
+| `ALLOWED_LOGIN_EMAILS` | Optional comma-separated allowlist. When set, only these emails can log in; others can sign up but stay locked. Empty = open to everyone. |
+| `ADMIN_NOTIFY_EMAIL` | Emailed when someone signs up and is locked out (defaults to `ALERT_EMAIL_TO`) |
 
 `ELEVEN_LABS_API_KEY`, `DEEPGRAM_API_KEY` and `OPENADAPTER_OPENAI_API_KEY` are present but
 **not used** by the active pipeline.

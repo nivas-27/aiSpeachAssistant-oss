@@ -21,7 +21,7 @@ from app.models.auth_models import (
 )
 from app.core.soft_delete import live, new_fields, soft_delete_one
 from app.models.db_models import as_utc, new_user, user_public, utcnow
-from app.services import otp_service
+from app.services import access_gate, otp_service
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -158,6 +158,11 @@ def verify_signup(payload: VerifyOtpRequest) -> AuthResponse:
 
     soft_delete_one(pending_signups(), {"email": email})
     document["_id"] = result.inserted_id
+
+    if not access_gate.is_allowed(email):
+        access_gate.notify_new_account(email, pending["full_name"])
+        access_gate.require_allowed(email)
+
     return _auth_response(document)
 
 
@@ -204,6 +209,8 @@ def login(payload: LoginRequest) -> AuthResponse:
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect email or password",
         )
+
+    access_gate.require_allowed(email)
 
     users().update_one(live({"_id": user["_id"]}), {"$set": {"last_login_at": utcnow()}})
     return _auth_response(user)
